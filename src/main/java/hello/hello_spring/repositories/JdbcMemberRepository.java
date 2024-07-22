@@ -1,0 +1,174 @@
+package hello.hello_spring.repositories;
+
+import hello.hello_spring.domains.Member;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+public class JdbcMemberRepository implements MemberRepository {
+
+    private final DataSource dataSource;
+
+    public JdbcMemberRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public Member save(Member member) {
+        String sql = "insert into member(name) values(?)";
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, member.getName());
+            preparedStatement.execute();
+
+            resultSet = preparedStatement.getGeneratedKeys();
+
+            if (resultSet.next()) {
+                member.setId(resultSet.getLong(1));
+            } else {
+                throw new SQLException("id 조회 실패");
+            }
+
+            return member;
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception);
+        } finally {
+            close(connection, preparedStatement, resultSet);
+        }
+    }
+
+    private void close(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) {
+        try {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        try {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        try {
+            if (connection != null) {
+                close(connection);
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    @Override
+    public Optional<Member> findById(Long id) {
+        String sql = "select * from member where id = ?";
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, id);
+
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Member member = new Member();
+                member.setId(resultSet.getLong("id"));
+                member.setName(resultSet.getString("name"));
+                return Optional.of(member);
+            } else {
+                return Optional.empty();
+            }
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception);
+        } finally {
+            close(connection, preparedStatement, resultSet);
+        }
+    }
+
+    @Override
+    public Optional<Member> findByName(String name) {
+        String sql = "select * from member where name = ?";
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, name);
+
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Member member = new Member();
+                member.setId(resultSet.getLong("id"));
+                member.setName(resultSet.getString("name"));
+                return Optional.of(member);
+            } else {
+                return Optional.empty();
+            }
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception);
+        } finally {
+            close(connection, preparedStatement, resultSet);
+        }
+    }
+
+    private Connection getConnection() {
+        return DataSourceUtils.getConnection(dataSource);
+    }
+
+    private void close(Connection connection) throws SQLException {
+        DataSourceUtils.releaseConnection(connection, dataSource);
+    }
+
+    @Override
+    public List<Member> findAll() {
+        String sql = "select * from member";
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+
+            resultSet = preparedStatement.executeQuery();
+
+            List<Member> members = new ArrayList<>();
+            while (resultSet.next()) {
+                Member member = new Member();
+                member.setId(resultSet.getLong("id"));
+                member.setName(resultSet.getString("name"));
+
+                members.add(member);
+            }
+
+            return members;
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception);
+        } finally {
+            close(connection, preparedStatement, resultSet);
+        }
+    }
+}
