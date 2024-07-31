@@ -1,5 +1,6 @@
 package hello.hello_spring.java.order;
 
+import hello.hello_spring.java.AppConfig;
 import hello.hello_spring.java.user.Grade;
 import hello.hello_spring.java.user.User;
 import hello.hello_spring.java.user.UserService;
@@ -9,8 +10,9 @@ import org.junit.jupiter.api.Test;
 
 public class OrderServiceTest {
 
-    UserService userService = new UserServiceImpl();
-    OrderService orderService = new OrderServiceImpl();
+    AppConfig appConfig = new AppConfig();
+    UserService userService = appConfig.userService();
+    OrderService orderService = appConfig.orderService();
 
     @Test
     void createOrder () {
