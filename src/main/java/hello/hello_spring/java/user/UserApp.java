@@ -1,13 +1,16 @@
 package hello.hello_spring.java.user;
 
 import hello.hello_spring.java.AppConfig;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class UserApp {
 
     public static void main(String[] args) {
 
-        AppConfig appConfig = new AppConfig();
-        UserService userService = appConfig.userService();
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+        UserService userService = applicationContext.getBean("userService", UserService.class);
+
         User user = new User(1L,"mingyu1","mingyu1@kimmingyu.co.kr",Grade.VIP);
         userService.join(user);
 
