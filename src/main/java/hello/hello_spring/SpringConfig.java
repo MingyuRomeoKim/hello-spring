@@ -1,9 +1,7 @@
 package hello.hello_spring;
 
-import hello.hello_spring.aops.TimeTraceAop;
-import hello.hello_spring.repositories.JpaMemberRepository;
-import hello.hello_spring.repositories.MemberRepository;
-import hello.hello_spring.services.MemberService;
+import hello.hello_spring.repositories.UserRepository;
+import hello.hello_spring.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,41 +9,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SpringConfig {
 
-//    private DataSource dataSource;
-//
-//    @Autowired
-//    public SpringConfig(DataSource dataSource) {
-//        this.dataSource = dataSource;
-//    }
-//    private EntityManager entityManager;
-//
-//    public SpringConfig(EntityManager entityManager) {
-//        this.entityManager = entityManager;
-//    }
-
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public SpringConfig(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
+    public SpringConfig(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
-
 
     @Bean
-    public MemberService memberService() {
-        return new MemberService(memberRepository);
+    public UserService userService() {
+        return new UserService(userRepository);
     }
 
-//    @Bean
-//    public TimeTraceAop timeTraceAop() {
-//        return new TimeTraceAop();
-//    }
-
-//    @Bean
-//    public MemberRepository memberRepository() {
-//        return new MemoryMemberRepository();
-//        return new JdbcMemberRepository(dataSource);
-//        return new JdbcTemplateMemberRepository(dataSource);
-//        return new JpaMemberRepository(entityManager);
-//    }
 }
